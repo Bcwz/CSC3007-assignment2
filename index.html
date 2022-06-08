@@ -12,8 +12,8 @@
     <title>Assignment 2</title>
 </head>
 <body onload="fetchCsv()">
-    <svg viewBox="0 0 1000 1000" id="bar_plot"></svg>
-    
+    <svg viewBox="0 0 500 500" id="bar_plot"></svg>
+    <svg viewBox="0 0 500 500" id="bar_plot_year"></svg>
 </body>
 <script type="text/javascript">
     URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf'
@@ -27,7 +27,14 @@
             height = 400 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
-        const svg = d3.select("#bar_plot")
+        const barPlot = d3.select("#bar_plot")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const barPlotYear = d3.select("#bar_plot_year")
         .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -40,7 +47,8 @@
             // sort data
             console.log(data)
             data.sort(function(b, a) {
-                return a.value - b.value;
+                sortedValue = a.value - b.value;
+                return sortedValue;
             });
 
             // X axis
@@ -48,7 +56,13 @@
                 .range([ 0, width ])
                 .domain(data.map(d => d.level_2))
                 .padding(0.2);
-            svg.append("g")
+            barPlot.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
+            barPlotYear.append("g")
                 .attr("transform", `translate(0, ${height})`)
                 .call(d3.axisBottom(x))
                 .selectAll("text")
@@ -59,11 +73,31 @@
             const y = d3.scaleLinear()
                 .domain([0, data[0].value])
                 .range([ height, 0]);
-            svg.append("g")
+            barPlot.append("g")
+                .call(d3.axisLeft(y))
+            barPlotYear.append("g")
                 .call(d3.axisLeft(y));
 
             // Bars
-            svg.selectAll("mybar")
+            barPlot.selectAll("mybar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .on("mouseover", onMouseOver)
+                .on("mouseout", onMouseOut)
+                .attr("x", d => x(d.level_2))
+                .attr("y", d => y(d.value))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - y(d.value))
+                .attr("fill", "#69b3a2")
+            barPlot
+                .append("text")
+                .attr("transform", "translate("+(width/2)+"," + 0 + ")")
+                .text("Crime Stats for year 2020")
+                .attr("text-align", "center");              
+                                
+            
+            barPlotYear.selectAll("mybar")
                 .data(data)
                 .enter()
                 .append("rect")
@@ -72,9 +106,23 @@
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d.value))
                 .attr("fill", "#69b3a2")
+            barPlotYear
+                .append("text")
+                .attr("transform", "translate(" + (width / 2) + "," + (0) + ")")
+                .text("TEST TEST")
+                .attr("text-align", "center");  
 
             })
 
+            //mouseover event handler function
+            function onMouseOver(d, i) {
+                console.log("HELLO")
+            };
+            //mouseout event handler function
+            function onMouseOut(d, i) {
+                console.log("BYE")
+            }
+           
     }
 </script>
 </html>
