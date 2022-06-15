@@ -12,14 +12,37 @@
     <title>Assignment 2</title>
 </head>
 <body onload="fetchCsv()">
+    <div id="tooltip"></div>
     <svg viewBox="0 0 500 500" id="bar_plot"></svg>
-    <svg viewBox="0 0 500 500" id="bar_plot_year"></svg>
+    <svg viewBox="0 0 500 500" id="bar_plot_year"></svg>    
 </body>
 <script type="text/javascript">
-    URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf'
+    URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf&q=2020'
+    //ANIMATE_URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf'
+
+    
     async function fetchCsv(){
         let response = await fetch(URL);
         let data = await response.json();
+
+        // let response_all_year = await fetch(ANIMATE_URL);
+        // let data_all_year = await response_all_year.json();
+
+        // function newQuery(elapsed){
+        //     d3.json(ANIMATE_URL).then(function(JSON){
+        //         all_data = JSON.result.records;
+        //         console.log(all_data);
+        //         all_data.sort(function(b, a) {
+        //             all_data_sortedValue = a.value - b.value;
+        //             return all_data_sortedValue;
+        //         });
+                
+        //     })
+        // }
+
+        //d3.interval(newQuery,1000)
+        
+        
         //console.log(data);
         // set the dimensions and margins of the graph
         const margin = {top: 30, right: 30, bottom: 130, left: 130},
@@ -69,6 +92,7 @@
                 .attr("transform", "translate(-10,0)rotate(-45)")
                 .style("text-anchor", "end");
 
+
             // Add Y axis
             const y = d3.scaleLinear()
                 .domain([0, data[0].value])
@@ -83,18 +107,34 @@
                 .data(data)
                 .enter()
                 .append("rect")
-                .on("mouseover", onMouseOver)
-                .on("mouseout", onMouseOut)
                 .attr("x", d => x(d.level_2))
                 .attr("y", d => y(d.value))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d.value))
-                .attr("fill", "#69b3a2")
+                .attr("fill", "#ff0000")
+                .on("mouseover", (event, d) => {
+                    //console.log(data)
+                    d3.select('#tooltip')
+                    .text(d.value)
+                    .style("position", "absolute")
+                    .style("background", "#808080")
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY) + "px");
+                })
+                .on("mouseout", (event, d) => {
+                    d3.select(".tooltip")
+                    .text("");
+                })
             barPlot
                 .append("text")
-                .attr("transform", "translate("+(width/2)+"," + 0 + ")")
+                .attr("transform", "translate(" + (width/2) + "," + (0) + ")")
                 .text("Crime Stats for year 2020")
-                .attr("text-align", "center");              
+                .attr("text-align", "middle");
+            barPlot
+                .append("text")
+                .attr("transform", "translate(" + (width/2) + "," + (height + 100 ) + ")")
+                .text("Crime Type")
+                .attr("text-align", "middle");                    
                                 
             
             barPlotYear.selectAll("mybar")
@@ -105,17 +145,17 @@
                 .attr("y", d => y(d.value))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d.value))
-                .attr("fill", "#69b3a2")
+                .attr("fill", "#ff0000")
             barPlotYear
                 .append("text")
                 .attr("transform", "translate(" + (width / 2) + "," + (0) + ")")
-                .text("TEST TEST")
-                .attr("text-align", "center");  
+                .text("Crime stats over years")
+                .attr("text-align", "middle");  
 
             })
 
             //mouseover event handler function
-            function onMouseOver(d, i) {
+            function onMouseOver(d,i) {
                 console.log("HELLO")
             };
             //mouseout event handler function
