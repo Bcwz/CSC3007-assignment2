@@ -50,12 +50,20 @@
             height = 400 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
-        const barPlot = d3.select("#bar_plot")
-        .append("svg")
+        // const barPlot = d3.select("#bar_plot")
+        // .append("svg")
+        //     .attr("width", width + margin.left + margin.right)
+        //     .attr("height", height + margin.top + margin.bottom)
+        // .append("g")
+        //     .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        let barPlot = d3.select('#bar_plot')
+            .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-        .append("g")
+            .append("g")
             .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
 
         const barPlotYear = d3.select("#bar_plot_year")
         .append("svg")
@@ -103,28 +111,34 @@
                 .call(d3.axisLeft(y));
 
             // Bars
-            barPlot.selectAll("mybar")
+            barPlot.selectAll("rect")
                 .data(data)
                 .enter()
                 .append("rect")
+                .transition()
+                .duration((d,i) => i * 1000)
                 .attr("x", d => x(d.level_2))
                 .attr("y", d => y(d.value))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d.value))
                 .attr("fill", "#ff0000")
+            barPlot.selectAll("rect")
+                .data(data)
                 .on("mouseover", (event, d) => {
-                    //console.log(data)
+                    console.log(d.value)
                     d3.select('#tooltip')
-                    .text(d.value)
-                    .style("position", "absolute")
-                    .style("background", "#808080")
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY) + "px");
-                })
+                        .text("Occurrence of " + d.level_2 + " is " + d.value)
+                        .style("position", "absolute")
+                        .style("background", "#fff")
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY) + "px");
+                }) 
                 .on("mouseout", (event, d) => {
                     d3.select(".tooltip")
                     .text("");
                 })
+                
+                
             barPlot
                 .append("text")
                 .attr("transform", "translate(" + (width/2) + "," + (0) + ")")
